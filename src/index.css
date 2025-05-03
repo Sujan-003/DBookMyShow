@@ -2,20 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Custom Scrollbar */
-.custom-scrollbar::-webkit-scrollbar {
-  width: 6px;
-}
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap");
 
-.custom-scrollbar::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.custom-scrollbar::-webkit-scrollbar-thumb {
-  background-color: rgba(160, 160, 160, 0.3);
-  border-radius: 3px;
-}
-
-.custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background-color: rgba(160, 160, 160, 0.5);
-}
+/* Custom styles (if needed) can be added below */
