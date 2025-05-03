@@ -13,7 +13,7 @@ import { FiMapPin, FiClock } from 'react-icons/fi';
 const Show = () => {
   const { showId } = useParams();
   const navigate = useNavigate();
-  const { setSelectedShow, selectedSeats, setSelectedSeats } = useContext(BookingContext);
+  const { selectedShow, setSelectedShow, selectedSeats, setSelectedSeats } = useContext(BookingContext);
 
   const [showData, setShowData] = useState(null); // State to hold fetched show data and booked seats
   const [loading, setLoading] = useState(true);
