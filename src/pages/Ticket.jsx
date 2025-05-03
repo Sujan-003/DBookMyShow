@@ -31,7 +31,7 @@ const Ticket = () => {
             <div className="ml-4">
               <h2 className="text-white text-xl font-semibold">{selectedShow.movie.title}</h2>
               <p className="text-gray-400 text-sm mt-1">
-                {new Date(selectedShow.time).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })} · {new Date(selectedShow.time).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}
+                {new Date(selectedShow.time).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })} · {new Date(selectedShow.time).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}
               </p>
               <p className="text-gray-400 text-sm">{selectedShow.theater.name}</p>
               <p className="text-gray-400 text-sm">SCREEN {selectedShow.screen.number}</p>

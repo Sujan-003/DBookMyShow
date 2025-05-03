@@ -110,7 +110,7 @@ const Movie = () => {
             <h1 className="text-3xl font-bold mb-4">{movie.title}</h1>
             <div className="flex items-center mb-4">
               <span className="text-accent font-bold text-xl mr-2">★</span>
-              <span className="text-xl font-semibold">{movie.rating}/5.0</span>
+              <span className="text-xl font-semibold">{movie.rating}/10.0</span>
               <span className="text-iconGray ml-2">({movie.votes} votes)</span>
             </div>
             <div className="flex flex-wrap gap-3 mb-4">
@@ -121,7 +121,7 @@ const Movie = () => {
             <p className="text-iconGray text-sm mb-4">
               <span>{movie.duration}</span> |
               <span className="mx-2">{movie.genre}</span> |
-              <span className="ml-2">{movie.release_date}</span> {/* Use release_date from backend */}
+              <span className="ml-2">{new Date(movie.release_date).toLocaleDateString('en-IN', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'Asia/Kolkata' })}</span> {/* Use release_date from backend */}
             </p>
           </div>
         </div>
@@ -160,7 +160,7 @@ const Movie = () => {
                           onClick={() => isAvailable && navigate(`/show/${show.show_id}`)} // Navigate using show_id
                           disabled={!isAvailable}
                         >
-                          {new Date(show.show_time).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })} {/* Use show_time */}
+                          {new Date(show.show_time).toLocaleTimeString('en-US', { hour: "2-digit", minute: "2-digit", hour12: true })} {/* Use show_time */}
                           <span className="block text-xs mt-1">
                             Screen {show.screen ? show.screen.screen_number : "?"} {/* Use screen_number */}
                           </span>

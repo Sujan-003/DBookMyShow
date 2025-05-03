@@ -6,14 +6,15 @@ import { useParams, useNavigate } from "react-router-dom";
 // import theaters from "../data/theaters";
 // import movies from "../data/movies";
 import BookingContext from "../context/BookingContext";
-import { FiMapPin, FiClock } from 'react-icons/fi';
+import { FiMapPin, FiClock } from "react-icons/fi";
 
 // Removed SEAT_PRICE constant
 
 const Show = () => {
   const { showId } = useParams();
   const navigate = useNavigate();
-  const { selectedShow, setSelectedShow, selectedSeats, setSelectedSeats } = useContext(BookingContext);
+  const { selectedShow, setSelectedShow, selectedSeats, setSelectedSeats } =
+    useContext(BookingContext);
 
   const [showData, setShowData] = useState(null); // State to hold fetched show data and booked seats
   const [loading, setLoading] = useState(true);
@@ -26,7 +27,9 @@ const Show = () => {
   useEffect(() => {
     const fetchShowData = async () => {
       try {
-        const response = await fetch(`http://localhost:5000/api/shows/${showId}`); // Call backend endpoint
+        const response = await fetch(
+          `http://localhost:5000/api/shows/${showId}`
+        ); // Call backend endpoint
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -37,7 +40,7 @@ const Show = () => {
         setSelectedShow({
           ...data.show, // Use show data from backend
           // Assuming show object from backend includes movie, theater, screen nested
-          base_seat_price: data.show.base_seat_price || 0 // Use base_seat_price from backend
+          base_seat_price: data.show.base_seat_price || 0, // Use base_seat_price from backend
         });
 
         // Generate 10x10 seat grid (A-J rows, 1-10 columns) - This logic remains the same
@@ -52,7 +55,7 @@ const Show = () => {
               id: `${rowLetter}${j}`, // e.g., A1, A2, B1, B2
               row: rowLetter,
               col: j,
-              number: `${rowLetter}${j}` // Use combined identifier for display/booking
+              number: `${rowLetter}${j}`, // Use combined identifier for display/booking
             });
           }
           generatedGrid.push({ row: rowLetter, seats: rowSeats });
@@ -61,7 +64,6 @@ const Show = () => {
 
         // Clear selected seats on mount
         setSelectedSeats([]);
-
       } catch (error) {
         console.error("Error fetching show data:", error);
         setError("Failed to load show details.");
@@ -99,7 +101,8 @@ const Show = () => {
   const theater = show?.theater;
   const bookedSeats = showData?.bookedSeats || []; // Use bookedSeats from backend
 
-  if (!show || !movie || !theater || !selectedShow) { // Check selectedShow as it holds base_seat_price
+  if (!show || !movie || !theater || !selectedShow) {
+    // Check selectedShow as it holds base_seat_price
     return (
       <div className="bg-background text-iconGray min-h-screen flex items-center justify-center">
         <p>Show details not found.</p>
@@ -110,7 +113,8 @@ const Show = () => {
   // Handle seat selection
   // Use the bookedSeats array from the fetched data
   const isBooked = (seatNumber) => bookedSeats.includes(seatNumber);
-  const isSelected = (seatNumber) => selectedSeats.some((s) => s.id === seatNumber);
+  const isSelected = (seatNumber) =>
+    selectedSeats.some((s) => s.id === seatNumber);
 
   const handleSeatClick = (seat) => {
     // seat object now has id like "A1"
@@ -126,25 +130,43 @@ const Show = () => {
     <div className="min-h-screen bg-[#0A0A0A] flex flex-col">
       <header className="bg-[#1A202C] px-6 py-4">
         <div className="max-w-4xl mx-auto">
-          <h1 className="text-3xl font-bold text-white">{movie.title}</h1> {/* Use movie from fetched data */}
+          <h1 className="text-3xl font-bold text-white">{movie.title}</h1>{" "}
+          {/* Use movie from fetched data */}
           <div className="flex items-center space-x-4 text-sm text-gray-400 mt-2">
             <FiMapPin className="text-iconGray" />
-            <span>{theater.name}, {theater.location}</span> {/* Use theater from fetched data */}
+            <span>
+              {theater.name}, {theater.location}
+            </span>{" "}
+            {/* Use theater from fetched data */}
             <FiClock className="text-iconGray ml-4" />
-            <span>{new Date(show.show_time).toLocaleString([], { month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric' })}</span> {/* Use show_time from fetched data */}
+            <span>
+              {new Date(show.show_time).toLocaleString("en-US", {
+                month: "long",
+                day: "numeric",
+                hour: "numeric",
+                minute: "numeric",
+                hour12: true,
+              })}
+            </span>{" "}
+            {/* Use show_time from fetched data */}
+            <span className="ml-4 px-2 py-1 bg-gray-800 text-amber-500 text-s rounded font-semibold">₹{selectedShow?.base_seat_price || 0}</span> {/* Base seat price badge */}
           </div>
         </div>
       </header>
       <main className="flex-1 bg-[#0A0A0A] py-8">
         <div className="max-w-4xl mx-auto">
-          <div className="text-center text-gray-400 uppercase tracking-widest mb-4">SCREEN THIS WAY</div>
+          <div className="text-center text-gray-400 uppercase tracking-widest mb-4">
+            SCREEN THIS WAY
+          </div>
           <div className="w-3/5 mx-auto h-1 bg-[#8B5CF6] rounded mb-8"></div>
           <div className="overflow-x-auto">
             <div className="flex flex-col items-center">
               {/* Iterate through the generated seatGrid */}
               {seatGrid.map((rowItem) => (
                 <div key={rowItem.row} className="flex items-center mb-3">
-                  <span className="w-6 text-sm text-gray-400 mr-2">{rowItem.row}</span>
+                  <span className="w-6 text-sm text-gray-400 mr-2">
+                    {rowItem.row}
+                  </span>
                   <div className="flex gap-3">
                     {rowItem.seats.map((seat) => {
                       const booked = isBooked(seat.id); // Check using seat number like "A1"
@@ -157,10 +179,10 @@ const Show = () => {
                           aria-label={`Seat ${seat.id}`} // Use seat.id ("A1") for label
                           className={`w-8 h-8 rounded-md flex items-center justify-center text-xs font-medium transition-colors ${
                             booked
-                              ? 'bg-[#1E293B] text-gray-500 cursor-not-allowed'
+                              ? "bg-[#1E293B] text-gray-500 cursor-not-allowed"
                               : selected
-                              ? 'bg-[#F59E0B] text-white'
-                              : 'bg-[#64748B] text-white hover:bg-[#8B5CF6]'
+                              ? "bg-[#F59E0B] text-white"
+                              : "bg-[#64748B] text-white hover:bg-[#8B5CF6]"
                           }`}
                         >
                           {seat.col} {/* Display column number */}
@@ -191,19 +213,23 @@ const Show = () => {
               <h3 className="text-sm text-gray-400">Selected Seats</h3>
               <p className="text-[#F59E0B] text-lg font-semibold">
                 {selectedSeats.length > 0
-                  ? selectedSeats.map((s) => s.id).join(', ') + ' selected' // Display seat numbers like "A1"
-                  : 'None'}
+                  ? selectedSeats.map((s) => s.id).join(", ") + " selected" // Display seat numbers like "A1"
+                  : "None"}
               </p>
             </div>
             <div className="text-center sm:text-left">
-              <h3 className="text-sm text-gray-400">Total Amount (Base Price)</h3>
+              <h3 className="text-sm text-gray-400">
+                Total Amount (Base Price)
+              </h3>
               <p className="text-white text-lg font-semibold">
-                {/* Use base_seat_price from selectedShow context */}
-                ₹{(selectedSeats.length * (selectedShow?.base_seat_price || 0)).toFixed(2)}
+                {/* Use base_seat_price from selectedShow context */}₹
+                {(
+                  selectedSeats.length * (selectedShow?.base_seat_price || 0)
+                ).toFixed(2)}
               </p>
             </div>
             <button
-              onClick={() => navigate('/ticket')} // This will navigate to the Ticket page
+              onClick={() => navigate("/ticket")} // This will navigate to the Ticket page
               disabled={selectedSeats.length === 0}
               className="w-full sm:w-auto bg-[#E11D48] hover:bg-red-600 text-white py-2 px-6 rounded font-semibold transition-colors disabled:opacity-50"
             >
