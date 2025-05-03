@@ -184,7 +184,7 @@ const Home = () => {
         <div className="flex items-center gap-6">
           <div className="flex items-center text-iconGray hover:text-white transition-colors">
             <FiMapPin size={20} className="mr-1" />
-            <span className="text-sm">Current City</span>
+            <span className="text-sm">Bangalore</span>
           </div>
           <div className="relative group">
             <button 

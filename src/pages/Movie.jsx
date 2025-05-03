@@ -93,7 +93,7 @@ const Movie = () => {
                 d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
               />
             </svg>
-            <span className="text-primary ml-2 text-sm">New York</span> {/* TODO: Fetch actual city */}
+            <span className="text-primary ml-2 text-sm">Bangalore</span> {/* TODO: Fetch actual city */}
           </div>
         </div>
       </div>
