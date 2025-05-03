@@ -3,8 +3,8 @@ import React, { useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import BookingContext from "../context/BookingContext";
 
-const SEAT_PRICE = 200;
-const CONVENIENCE_FEE = 30;
+// Removed SEAT_PRICE constant
+const CONVENIENCE_FEE = 15; // Updated convenience fee per ticket
 
 const Ticket = () => {
   const { selectedShow, selectedSeats } = useContext(BookingContext);
@@ -51,18 +51,20 @@ const Ticket = () => {
             <h3 className="text-white text-lg font-medium">Bill Details</h3>
 
             <div className="flex justify-between">
+              {/* Use base_seat_price from selectedShow context */}
               <span className="text-gray-400 text-sm">Ticket Price ({selectedSeats.length} seats)</span>
-              <span className="text-white text-sm">₹{SEAT_PRICE} × {selectedSeats.length}</span>
+              <span className="text-white text-sm">₹{(selectedShow?.base_seat_price || 0)} × {selectedSeats.length}</span>
             </div>
 
             <div className="flex justify-between">
-              <span className="text-gray-400 text-sm">Convenience Fee</span>
-              <span className="text-white text-sm">₹{CONVENIENCE_FEE}</span>
+              <span className="text-gray-400 text-sm">Convenience Fee ({selectedSeats.length} seats)</span>
+              <span className="text-white text-sm">₹{CONVENIENCE_FEE} × {selectedSeats.length}</span>
             </div>
 
             <div className="flex justify-between pt-2 border-t border-gray-700">
               <span className="text-white text-base font-semibold">Total Amount</span>
-              <span className="text-red-500 text-base font-semibold">₹{selectedSeats.length * SEAT_PRICE + CONVENIENCE_FEE}</span>
+              {/* Calculate total amount: (seats * base_price) + (seats * convenience_fee) */}
+              <span className="text-red-500 text-base font-semibold">₹{(selectedSeats.length * (selectedShow?.base_seat_price || 0)) + (selectedSeats.length * CONVENIENCE_FEE)}</span>
             </div>
 
             <button

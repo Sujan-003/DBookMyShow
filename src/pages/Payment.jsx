@@ -5,11 +5,14 @@ import { FaArrowLeft, FaChevronRight, FaCreditCard } from "react-icons/fa";
 import { SiSamsungpay, SiPaytm, SiPhonepe, SiAmazonpay } from "react-icons/si";
 import { AiOutlineAppstore } from "react-icons/ai";
 
+const CONVENIENCE_FEE = 15; // Updated convenience fee per ticket
+
 const Payment = () => {
-  const { selectedShow, selectedSeats } = useContext(BookingContext);
+  const { selectedShow, selectedSeats, clearBooking } = useContext(BookingContext); // Added clearBooking from context
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
-  const [form, setForm] = useState({ cardNumber: "", expiry: "", cvv: "" });
+  const [error, setError] = useState(null); // State for handling errors
+  const [form, setForm] = useState({ cardNumber: "", expiry: "", cvv: "" }); // Keep form state if needed for actual payment processing later
 
   if (!selectedShow || selectedSeats.length === 0) {
     return (
@@ -20,7 +23,48 @@ const Payment = () => {
   }
 
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
-  const handleSubmit = (e) => { e.preventDefault(); setLoading(true); setTimeout(() => { setLoading(false); navigate("/confirmation"); }, 1200); };
+
+  const handleSubmit = async (e) => { // Made handleSubmit async
+    e.preventDefault();
+    setLoading(true);
+    setError(null); // Clear previous errors
+
+    const totalAmount = (selectedSeats.length * (selectedShow?.base_seat_price || 0)) + (selectedSeats.length * CONVENIENCE_FEE);
+    const bookingData = {
+      showId: selectedShow.show_id, // Use show_id from selectedShow
+      seats: selectedSeats.map(seat => seat.id), // Send array of seat identifiers
+      totalAmount: totalAmount,
+    };
+
+    try {
+      const response = await fetch('http://localhost:5000/api/bookings', { // Call backend endpoint
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(bookingData),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || `HTTP error! status: ${response.status}`);
+      }
+
+      // Booking successful
+      console.log("Booking successful:", result);
+      // Clear booking context after successful booking
+      clearBooking(); // Assuming you have a clearBooking function in your context
+      // Navigate to confirmation page, maybe pass bookingId
+      navigate(`/confirmation?bookingId=${result.bookingId}`); // Pass bookingId to confirmation page
+
+    } catch (error) {
+      console.error("Error creating booking:", error);
+      setError(`Booking failed: ${error.message}`); // Set error message
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="flex flex-col min-h-screen bg-black text-white font-sans">
@@ -34,6 +78,12 @@ const Payment = () => {
       {/* Content */}
       <div className="flex-1 flex justify-center">
         <div className="w-full max-w-2xl p-4 space-y-6">
+           {/* Display Error */}
+           {error && (
+            <div className="bg-red-800 text-white p-3 rounded-md text-sm">
+              {error}
+            </div>
+          )}
           {/* Recommended Methods */}
           <div>
             <h2 className="text-gray-400 mb-2">Recommended</h2>
@@ -89,8 +139,13 @@ const Payment = () => {
       </div>
       {/* Bottom Action */}
       <div className="flex justify-center p-4">
-        <button onClick={() => navigate('/confirmation')} className="w-full max-w-2xl bg-red-600 hover:bg-red-700 rounded-xl py-3 text-white font-semibold transition">
-          Proceed to next page
+        {/* Call handleSubmit on button click */}
+        <button
+          onClick={handleSubmit}
+          disabled={selectedSeats.length === 0 || loading} // Disable while loading
+          className="w-full max-w-2xl bg-red-600 hover:bg-red-700 rounded-xl py-3 text-white font-semibold transition disabled:opacity-50"
+        >
+          {loading ? 'Processing...' : 'Proceed to next page'} {/* Show loading text */}
         </button>
       </div>
     </div>

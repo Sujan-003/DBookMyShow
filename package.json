@@ -8,6 +8,9 @@
     "@testing-library/react": "^16.3.0",
     "@testing-library/user-event": "^13.5.0",
     "autoprefixer": "^10.4.21",
+    "node-fetch": "^3.3.2",
+    "node-pg-migrate": "^7.9.1",
+    "pg": "^8.15.6",
     "postcss": "^8.5.3",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
@@ -19,7 +22,8 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "serve": "vite preview"
+    "serve": "vite preview",
+    "migrate": "set DATABASE_URL=postgres://spiky:spiky@localhost:5431/project&& npx node-pg-migrate up"
   },
   "eslintConfig": {
     "extends": [

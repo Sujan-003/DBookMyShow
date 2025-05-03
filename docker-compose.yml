@@ -1,0 +1,31 @@
+services:
+  db:
+    image: postgres
+    restart: always
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    ports:
+      - 5431:5432 # make sure you don't have another container running on 5432
+
+    environment:
+      - POSTGRES_DB=project
+      - POSTGRES_USER=spiky
+      - POSTGRES_PASSWORD=spiky
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U spiky -d project"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - "8080:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  db_data:

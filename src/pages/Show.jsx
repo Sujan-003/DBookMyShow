@@ -1,69 +1,124 @@
 // Show.js
 import React, { useContext, useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import shows from "../data/shows";
-import theaters from "../data/theaters";
-import movies from "../data/movies";
+// Remove local data imports
+// import shows from "../data/shows";
+// import theaters from "../data/theaters";
+// import movies from "../data/movies";
 import BookingContext from "../context/BookingContext";
 import { FiMapPin, FiClock } from 'react-icons/fi';
 
-const SEAT_PRICE = 200;
+// Removed SEAT_PRICE constant
 
 const Show = () => {
   const { showId } = useParams();
-  const show = shows.find((s) => s.id === parseInt(showId, 10));
   const navigate = useNavigate();
   const { setSelectedShow, selectedSeats, setSelectedSeats } = useContext(BookingContext);
 
+  const [showData, setShowData] = useState(null); // State to hold fetched show data and booked seats
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
   const [seatGrid, setSeatGrid] = useState([]);
-  const [theater, setTheater] = useState(null);
-  const [screen, setScreen] = useState(null);
-  const [movie, setMovie] = useState(null);
+  // Removed local state for theater, screen, movie as they will be part of showData
 
+  // Effect to fetch show details and booked seats
   useEffect(() => {
-    if (!show) return;
-    // Find theater and screen
-    const t = theaters.find((th) => th.id === show.theaterId);
-    setTheater(t);
-    const s = t ? t.screens.find((sc) => sc.id === show.screenId) : null;
-    setScreen(s);
-    // Find movie
-    const m = movies.find((mov) => mov.id === show.movieId);
-    setMovie(m);
-    // Prepare seat grid
-    if (s) {
-      setSeatGrid(s.seats);
-    }
-    // Set selected show in context
-    setSelectedShow({
-      ...show,
-      theater: t,
-      screen: s,
-      movie: m,
-    });
-    // Clear selected seats on mount
-    setSelectedSeats([]);
-    // eslint-disable-next-line
-  }, [showId]);
+    const fetchShowData = async () => {
+      try {
+        const response = await fetch(`http://localhost:5000/api/shows/${showId}`); // Call backend endpoint
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        setShowData(data); // Set the fetched data
 
-  if (!show || !theater || !screen || !movie) {
+        // Set selected show in context (ensure base_seat_price is included)
+        setSelectedShow({
+          ...data.show, // Use show data from backend
+          // Assuming show object from backend includes movie, theater, screen nested
+          base_seat_price: data.show.base_seat_price || 0 // Use base_seat_price from backend
+        });
+
+        // Generate 10x10 seat grid (A-J rows, 1-10 columns) - This logic remains the same
+        const generatedGrid = [];
+        const rows = 10;
+        const cols = 10;
+        for (let i = 0; i < rows; i++) {
+          const rowLetter = String.fromCharCode(65 + i); // A, B, C...
+          const rowSeats = [];
+          for (let j = 1; j <= cols; j++) {
+            rowSeats.push({
+              id: `${rowLetter}${j}`, // e.g., A1, A2, B1, B2
+              row: rowLetter,
+              col: j,
+              number: `${rowLetter}${j}` // Use combined identifier for display/booking
+            });
+          }
+          generatedGrid.push({ row: rowLetter, seats: rowSeats });
+        }
+        setSeatGrid(generatedGrid);
+
+        // Clear selected seats on mount
+        setSelectedSeats([]);
+
+      } catch (error) {
+        console.error("Error fetching show data:", error);
+        setError("Failed to load show details.");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchShowData();
+  }, [showId, setSelectedShow, setSelectedSeats]); // Rerun effect if showId changes or context setters change
+
+  // Scroll to top on component mount (and when data is loaded)
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [showData]); // Scroll to top after showData is loaded
+
+  if (loading) {
     return (
-      <div className="container mx-auto px-4 py-8">
-        <p className="text-red-500">Show not found.</p>
+      <div className="bg-background text-iconGray min-h-screen flex items-center justify-center">
+        <p>Loading show details...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="bg-background text-red-500 min-h-screen flex items-center justify-center">
+        <p>{error}</p>
+      </div>
+    );
+  }
+
+  // Use fetched data
+  const show = showData?.show;
+  const movie = show?.movie;
+  const theater = show?.theater;
+  const bookedSeats = showData?.bookedSeats || []; // Use bookedSeats from backend
+
+  if (!show || !movie || !theater || !selectedShow) { // Check selectedShow as it holds base_seat_price
+    return (
+      <div className="bg-background text-iconGray min-h-screen flex items-center justify-center">
+        <p>Show details not found.</p>
       </div>
     );
   }
 
   // Handle seat selection
-  const isBooked = (seatId) => show.bookedSeats.includes(seatId);
-  const isSelected = (seatId) => selectedSeats.some((s) => s.id === seatId);
+  // Use the bookedSeats array from the fetched data
+  const isBooked = (seatNumber) => bookedSeats.includes(seatNumber);
+  const isSelected = (seatNumber) => selectedSeats.some((s) => s.id === seatNumber);
 
   const handleSeatClick = (seat) => {
+    // seat object now has id like "A1"
     if (isBooked(seat.id)) return;
     if (isSelected(seat.id)) {
       setSelectedSeats(selectedSeats.filter((s) => s.id !== seat.id));
     } else {
-      setSelectedSeats([...selectedSeats, seat]);
+      setSelectedSeats([...selectedSeats, seat]); // Store the whole seat object {id: "A1", row: "A", col: 1, number: "A1"}
     }
   };
 
@@ -71,12 +126,12 @@ const Show = () => {
     <div className="min-h-screen bg-[#0A0A0A] flex flex-col">
       <header className="bg-[#1A202C] px-6 py-4">
         <div className="max-w-4xl mx-auto">
-          <h1 className="text-3xl font-bold text-white">{movie.title}</h1>
+          <h1 className="text-3xl font-bold text-white">{movie.title}</h1> {/* Use movie from fetched data */}
           <div className="flex items-center space-x-4 text-sm text-gray-400 mt-2">
             <FiMapPin className="text-iconGray" />
-            <span>{theater.name}, {theater.location}</span>
+            <span>{theater.name}, {theater.location}</span> {/* Use theater from fetched data */}
             <FiClock className="text-iconGray ml-4" />
-            <span>{new Date(show.time).toLocaleString([], { month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric' })}</span>
+            <span>{new Date(show.show_time).toLocaleString([], { month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric' })}</span> {/* Use show_time from fetched data */}
           </div>
         </div>
       </header>
@@ -86,39 +141,35 @@ const Show = () => {
           <div className="w-3/5 mx-auto h-1 bg-[#8B5CF6] rounded mb-8"></div>
           <div className="overflow-x-auto">
             <div className="flex flex-col items-center">
-              {Array.from({ length: 10 }, (_, i) => {
-                const row = i + 1;
-                const letter = String.fromCharCode(64 + row);
-                const rowSeats = seatGrid.filter((seat) => seat.row === row);
-                return (
-                  <div key={row} className="flex items-center mb-3">
-                    <span className="w-6 text-sm text-gray-400 mr-2">{letter}</span>
-                    <div className="flex gap-3">
-                      {rowSeats.map((seat) => {
-                        const booked = isBooked(seat.id);
-                        const selected = isSelected(seat.id);
-                        return (
-                          <button
-                            key={seat.id}
-                            disabled={booked}
-                            onClick={() => handleSeatClick(seat)}
-                            aria-label={`Seat ${seat.number}`}
-                            className={`w-8 h-8 rounded-md flex items-center justify-center text-xs font-medium transition-colors ${
-                              booked
-                                ? 'bg-[#1E293B] text-gray-500 cursor-not-allowed'
-                                : selected
-                                ? 'bg-[#F59E0B] text-white'
-                                : 'bg-[#64748B] text-white hover:bg-[#8B5CF6]'
-                            }`}
-                          >
-                            {seat.col}
-                          </button>
-                        );
-                      })}
-                    </div>
+              {/* Iterate through the generated seatGrid */}
+              {seatGrid.map((rowItem) => (
+                <div key={rowItem.row} className="flex items-center mb-3">
+                  <span className="w-6 text-sm text-gray-400 mr-2">{rowItem.row}</span>
+                  <div className="flex gap-3">
+                    {rowItem.seats.map((seat) => {
+                      const booked = isBooked(seat.id); // Check using seat number like "A1"
+                      const selected = isSelected(seat.id); // Check using seat number like "A1"
+                      return (
+                        <button
+                          key={seat.id}
+                          disabled={booked}
+                          onClick={() => handleSeatClick(seat)}
+                          aria-label={`Seat ${seat.id}`} // Use seat.id ("A1") for label
+                          className={`w-8 h-8 rounded-md flex items-center justify-center text-xs font-medium transition-colors ${
+                            booked
+                              ? 'bg-[#1E293B] text-gray-500 cursor-not-allowed'
+                              : selected
+                              ? 'bg-[#F59E0B] text-white'
+                              : 'bg-[#64748B] text-white hover:bg-[#8B5CF6]'
+                          }`}
+                        >
+                          {seat.col} {/* Display column number */}
+                        </button>
+                      );
+                    })}
                   </div>
-                );
-              })}
+                </div>
+              ))}
             </div>
           </div>
           <div className="flex justify-center space-x-6 mt-6">
@@ -140,18 +191,19 @@ const Show = () => {
               <h3 className="text-sm text-gray-400">Selected Seats</h3>
               <p className="text-[#F59E0B] text-lg font-semibold">
                 {selectedSeats.length > 0
-                  ? selectedSeats.map((s) => s.number).join(', ') + ' selected'
+                  ? selectedSeats.map((s) => s.id).join(', ') + ' selected' // Display seat numbers like "A1"
                   : 'None'}
               </p>
             </div>
             <div className="text-center sm:text-left">
-              <h3 className="text-sm text-gray-400">Total Amount</h3>
+              <h3 className="text-sm text-gray-400">Total Amount (Base Price)</h3>
               <p className="text-white text-lg font-semibold">
-                ₹{(selectedSeats.length * SEAT_PRICE).toFixed(2)}
+                {/* Use base_seat_price from selectedShow context */}
+                ₹{(selectedSeats.length * (selectedShow?.base_seat_price || 0)).toFixed(2)}
               </p>
             </div>
             <button
-              onClick={() => navigate('/ticket')}
+              onClick={() => navigate('/ticket')} // This will navigate to the Ticket page
               disabled={selectedSeats.length === 0}
               className="w-full sm:w-auto bg-[#E11D48] hover:bg-red-600 text-white py-2 px-6 rounded font-semibold transition-colors disabled:opacity-50"
             >

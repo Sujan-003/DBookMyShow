@@ -4,19 +4,35 @@ A web application that mimics the functionality of BookMyShow, allowing users to
 
 ## Features
 
-- **Movie Listings**: Browse a collection of movies with details like title, genre, rating, and showtimes.
+- **Movie Listings**: Browse movies with details like title, genre, rating, and showtimes.
 - **Seat Selection**: Interactive seat map for selecting seats in the theater.
 - **Booking Management**: View, modify, and cancel bookings.
-- **User Authentication**: Secure login and registration system.
+- **Payment Integration**: Mock payment processing.
 - **Responsive Design**: Works on desktop, tablet, and mobile devices.
 
 ## Technologies
 
-- **Frontend**: React.js, Redux, Tailwind CSS
+- **Frontend**: React.js, Tailwind CSS, Vite
 - **Backend**: Node.js, Express.js
-- **Database**: MongoDB
-- **Authentication**: JWT
-- **Payment**: Stripe API
+- **Database**: PostgreSQL
+- **Containerization**: Docker
+
+## Project Structure
+
+```
+bookmyshow-clone/
+├── data/               # Database files
+├── public/             # Static assets
+├── scripts/            # Database population scripts
+├── server/             # Backend Express server
+│   ├── migrations/     # Database migrations
+│   └── server.js       # Server entry point
+├── src/                # Frontend React application
+│   ├── components/     # React components
+│   ├── pages/          # React pages
+│   └── index.jsx       # Frontend entry point
+└── docker-compose.yml  # Docker configuration
+```
 
 ## Installation
 
@@ -29,35 +45,24 @@ A web application that mimics the functionality of BookMyShow, allowing users to
    ```bash
    cd bookmyshow-clone
    npm install
+   cd server
+   npm install
    ```
 
-3. Set up environment variables:
+3. Start the development environment:
    ```bash
-   cp .env.example .env
+   docker-compose up
    ```
 
-4. Start the development server:
-   ```bash
-   npm start
-   ```
-
-## Screenshots
-
-![Home Page](public/screenshots/home.png)
-![Movie Details](public/screenshots/movie.png)
-![Booking Page](public/screenshots/booking.png)
-
-## API Reference
+## API Endpoints
 
 ### Movies
 - `GET /api/movies` - Get all movies
 - `GET /api/movies/:id` - Get movie details
-- `POST /api/movies` - Add new movie (admin)
 
 ### Bookings
 - `POST /api/bookings` - Create new booking
 - `GET /api/bookings` - Get user bookings
-- `DELETE /api/bookings/:id` - Cancel booking
 
 ## Contributing
 
@@ -69,10 +74,4 @@ A web application that mimics the functionality of BookMyShow, allowing users to
 
 ## License
 
-Distributed under the MIT License. See `LICENSE` for more information.
-
-## Contact
-
-Your Name - your.email@example.com
-
-Project Link: [https://github.com/yourusername/bookmyshow-clone](https://github.com/yourusername/bookmyshow-clone)
+Distributed under the MIT License.
