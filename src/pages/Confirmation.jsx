@@ -107,9 +107,9 @@ const Confirmation = () => {
       {/* Booking Details Card */}
       <div className="bg-[#1a1a1a]/80 rounded-2xl shadow-lg p-5 mt-6 w-full max-w-3xl">
         <p className="text-gray-200 mb-1">Booking ID: {booking.booking_id}</p> {/* Use booking_id from fetched data */}
-        <p className="text-gray-200 mb-3">Booking code: {booking.booking_id}</p> {/* Using booking_id as code for now */}
+        <p className="text-gray-200 mb-3">Booking code: {booking.booking_code}</p>
         <p className="text-white font-semibold text-base">
-          {`${new Date(selectedShow.show_time).toLocaleDateString(undefined, { weekday:'short', day:'numeric', month:'short' })} | ${new Date(selectedShow.show_time).toLocaleTimeString('en-US', { hour:'2-digit', minute:'2-digit', hour12: true })}`} {/* Use show_time */}
+          {`${new Date(selectedShow.show_time).toLocaleTimeString('en-US', { hour:'2-digit', minute:'2-digit', hour12: true })}`} {/* Use show_time */}
         </p>
       </div>
       {/* Screening Information Section */}

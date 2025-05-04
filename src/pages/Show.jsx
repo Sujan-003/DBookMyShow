@@ -47,12 +47,13 @@ const Show = () => {
         const generatedGrid = [];
         const rows = 10;
         const cols = 10;
-        for (let i = 0; i < rows; i++) {
-          const rowLetter = String.fromCharCode(65 + i); // A, B, C...
+        // Loop from 'J' down to 'A'
+        for (let i = rows - 1; i >= 0; i--) {
+          const rowLetter = String.fromCharCode(65 + i); // J, I, H... A
           const rowSeats = [];
           for (let j = 1; j <= cols; j++) {
             rowSeats.push({
-              id: `${rowLetter}${j}`, // e.g., A1, A2, B1, B2
+              id: `${rowLetter}${j}`, // e.g., J1, J2, ... A1, A2
               row: rowLetter,
               col: j,
               number: `${rowLetter}${j}`, // Use combined identifier for display/booking
@@ -140,9 +141,7 @@ const Show = () => {
             {/* Use theater from fetched data */}
             <FiClock className="text-iconGray ml-4" />
             <span>
-              {new Date(show.show_time).toLocaleString("en-US", {
-                month: "long",
-                day: "numeric",
+              {new Date(show.show_time).toLocaleTimeString("en-US", {
                 hour: "numeric",
                 minute: "numeric",
                 hour12: true,
@@ -158,13 +157,13 @@ const Show = () => {
           <div className="text-center text-gray-400 uppercase tracking-widest mb-4">
             SCREEN THIS WAY
           </div>
-          <div className="w-3/5 mx-auto h-1 bg-[#8B5CF6] rounded mb-8"></div>
+          <div className="w-3/5 mx-auto h-1 bg-[#F59E0B] rounded mb-8 shadow-[0_4px_15px_rgba(245,158,11,0.6),0_8px_25px_rgba(245,158,11,0.4),0_12px_35px_rgba(245,158,11,0.3)]"></div>
           <div className="overflow-x-auto">
             <div className="flex flex-col items-center">
               {/* Iterate through the generated seatGrid */}
               {seatGrid.map((rowItem) => (
                 <div key={rowItem.row} className="flex items-center mb-3">
-                  <span className="w-6 text-sm text-gray-400 mr-2">
+                  <span className="w-6 text-sm text-gray-300 mr-2 [text-shadow:_0_0_3px_#FFFFFF]">
                     {rowItem.row}
                   </span>
                   <div className="flex gap-3">
@@ -179,10 +178,10 @@ const Show = () => {
                           aria-label={`Seat ${seat.id}`} // Use seat.id ("A1") for label
                           className={`w-8 h-8 rounded-md flex items-center justify-center text-xs font-medium transition-colors ${
                             booked
-                              ? "bg-[#1E293B] text-gray-500 cursor-not-allowed"
+                              ? "bg-[#000000] text-gray-500 cursor-not-allowed"
                               : selected
                               ? "bg-[#F59E0B] text-white"
-                              : "bg-[#64748B] text-white hover:bg-[#8B5CF6]"
+                              : "bg-[#1F2937] text-white hover:bg-[#8B5CF6]"
                           }`}
                         >
                           {seat.col} {/* Display column number */}
@@ -196,15 +195,15 @@ const Show = () => {
           </div>
           <div className="flex justify-center space-x-6 mt-6">
             <div className="flex items-center space-x-2">
-              <span className="w-4 h-4 bg-[#64748B] rounded"></span>
+              <span className="w-4 h-4 bg-[#1F2937] rounded border border-gray-300"></span>
               <span className="text-sm text-gray-400">Available</span>
             </div>
             <div className="flex items-center space-x-2">
-              <span className="w-4 h-4 bg-[#1E293B] rounded"></span>
+              <span className="w-4 h-4 bg-[#000000] rounded border border-gray-300"></span>
               <span className="text-sm text-gray-400">Booked</span>
             </div>
             <div className="flex items-center space-x-2">
-              <span className="w-4 h-4 bg-[#F59E0B] rounded"></span>
+              <span className="w-4 h-4 bg-[#F59E0B] rounded border border-gray-300"></span>
               <span className="text-sm text-gray-400">Selected</span>
             </div>
           </div>

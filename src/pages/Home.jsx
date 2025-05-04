@@ -153,12 +153,10 @@ const Home = () => {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
         const data = await response.json();
+        // Keep original show_time timestamp, format booking_date
         const formattedBookings = data.map((booking) => ({
           ...booking,
-          show_time: new Date(booking.show_time).toLocaleString("en-IN", {
-            dateStyle: "medium",
-            timeStyle: "short",
-          }),
+          // show_time is kept as original timestamp
           booking_date: new Date(booking.booking_date).toLocaleString("en-IN", {
             dateStyle: "medium",
             timeStyle: "short",
@@ -187,7 +185,7 @@ const Home = () => {
             <span className="text-sm">Bangalore</span>
           </div>
           <div className="relative group">
-            <button 
+            <button
               aria-label="View Bookings"
               className="p-2 -m-2 text-iconGray hover:text-white transition-colors rounded-full hover:bg-white/5"
             >
@@ -246,7 +244,7 @@ const Home = () => {
                                   #{booking.booking_code}
                                 </span>
                               </div>
-                              
+
                               <div className="space-y-2 text-sm">
                                 <div className="flex items-center text-iconGray">
                                   <span className="w-5">🏢</span>
@@ -254,7 +252,8 @@ const Home = () => {
                                 </div>
                                 <div className="flex items-center text-iconGray">
                                   <span className="w-5">🎬</span>
-                                  <span>{booking.show_time}</span>
+                                  {/* Format show_time directly in JSX */}
+                                  <span>{new Date(booking.show_time).toLocaleTimeString("en-IN", { timeStyle: "short" })}</span>
                                 </div>
                                 <div className="flex items-center text-iconGray">
                                   <span className="w-5">💺</span>
